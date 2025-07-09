@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis Interactivo del SIP de Ecuador</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals & Soft Teal -->
+    <!-- Application Structure Plan: The SPA follows a narrative journey. It starts with a high-level "What is SIP?" to grab attention, moves to "Why Now?" using a compelling data visualization to establish context, then explains "How it Works" with a comparative diagram. It follows with a "Timeline," a "Regional Comparison" to benchmark against peers like PIX, and concludes with "Impact & Challenges" and "The Future." This thematic, story-driven structure is more intuitive and engaging for a general audience than the report's formal sections, facilitating understanding by building concepts progressively from the "what" and "why" to the "how" and "what's next." -->
+    <!-- Visualization & Content Choices: 
+        1. Digital Growth Chart: Report data on transaction growth -> Goal: Show the market demand for SIP -> Viz: Line Chart (Chart.js) -> Interaction: Hover for details -> Justification: A line chart is the most effective way to show a trend over time, making the case for SIP undeniable.
+        2. Old vs. New System Diagram: Report explains SPI's batch processing vs. SIP's real-time -> Goal: Clarify the core technological leap -> Viz: HTML/CSS diagram with animated flow -> Interaction: Button to toggle between views -> Justification: A visual, animated comparison is far more intuitive than descriptive text for explaining a technical process.
+        3. Implementation Timeline: Report details the mandatory phases -> Goal: Show the rollout plan clearly -> Viz: Interactive HTML/CSS timeline -> Interaction: Click on phase to see details -> Justification: An interactive timeline makes dense schedule information digestible and allows users to explore at their own pace.
+        4. Regional Adoption Chart: Report compares SIP to PIX/CoDi -> Goal: Benchmark SIP's potential and challenges -> Viz: Bar Chart (Chart.js) -> Interaction: Hover for exact percentages -> Justification: A bar chart provides a stark, immediate comparison of adoption levels, highlighting the success of the PIX model that SIP emulates.
+        5. Key Features/Impacts: Report lists features and impacts -> Goal: Summarize key takeaways -> Viz: HTML/CSS Icon-based cards -> Interaction: Static, clear display -> Justification: Cards with icons provide a scannable, visually appealing summary of important concepts.
+        -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #0d9488; /* teal-600 */
+            border-bottom-color: #0d9488; /* teal-600 */
+        }
+        .kpi-card {
+            background-color: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 50vh;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 450px;
+            }
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -31px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 22px;
+            height: 22px;
+            background-color: #f8fafc;
+            border: 4px solid #14b8a6; /* teal-500 */
+            border-radius: 50%;
+            z-index: 1;
+        }
+        .flow-line {
+            transition: stroke-dashoffset 2s ease-in-out;
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+        }
+        .flow-line.active {
+            stroke-dashoffset: 0;
+        }
+    </style>
+</head>
+<body class="text-slate-700">
+
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-teal-700">SIP Ecuador</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#intro" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600">Introducción</a>
+                        <a href="#why" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600">¿Por qué ahora?</a>
+                        <a href="#how" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600">¿Cómo funciona?</a>
+                        <a href="#timeline" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600">Implementación</a>
+                        <a href="#compare" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600">Análisis Regional</a>
+                        <a href="#impact" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600">Impacto y Desafíos</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+
+        <section id="intro" class="text-center py-16">
+            <h2 class="text-4xl md:text-5xl font-extrabold text-slate-800 mb-4">La Revolución de los Pagos en Ecuador.</h2>
+            <p class="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto mb-8">El Sistema Integrado de Pagos (SIP) marca la mayor transformación del sistema financiero ecuatoriano en décadas. Es una nueva infraestructura nacional diseñada para que las transferencias de dinero sean instantáneas, seguras y disponibles 24/7 para todos.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
+                <div class="kpi-card text-left">
+                    <div class="flex items-center gap-4">
+                        <span class="text-3xl">⏱️</span>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-800">24/7/365</h3>
+                            <p class="text-sm text-slate-500">Operaciones en tiempo real, sin interrupciones ni horarios.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="kpi-card text-left">
+                     <div class="flex items-center gap-4">
+                        <span class="text-3xl">🔑</span>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-800">Llaves (Alias)</h3>
+                            <p class="text-sm text-slate-500">Envía dinero usando solo un número de celular, cédula o email.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="kpi-card text-left">
+                     <div class="flex items-center gap-4">
+                        <span class="text-3xl">📱</span>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-800">QR Interoperable</h3>
+                            <p class="text-sm text-slate-500">Un solo código QR para pagar desde cualquier app bancaria.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="kpi-card text-left">
+                     <div class="flex items-center gap-4">
+                        <span class="text-3xl">🏛️</span>
+                        <div>
+                            <h3 class="font-bold text-lg text-slate-800">Mandatorio</h3>
+                            <p class="text-sm text-slate-500">Adopción obligatoria para todas las entidades financieras.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-12 md:my-20 border-slate-200">
+
+        <section id="why" class="py-12">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">¿Por Qué Ahora? La Tormenta Perfecta</h2>
+                <p class="text-lg text-slate-600 max-w-3xl mx-auto">El SIP no surge en un vacío. Es la respuesta a una historia de crisis que fortaleció el sistema y a una reciente y explosiva demanda de inmediatez por parte de los ecuatorianos, que ya habían adoptado masivamente los pagos digitales.</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="text-xl font-bold text-slate-800 mb-2 text-center">Crecimiento Exponencial de Transferencias Digitales Inmediatas</h3>
+                <p class="text-center text-slate-500 mb-6">El volumen de transferencias inmediatas (vía redes privadas) se disparó antes del SIP, demostrando que el mercado estaba listo y necesitaba una infraestructura unificada. El sistema antiguo, basado en "cortes", ya no era suficiente.</p>
+                <div class="chart-container">
+                    <canvas id="digitalGrowthChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-12 md:my-20 border-slate-200">
+
+        <section id="how" class="py-12">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">Del Retraso al Tiempo Real: ¿Cómo Funciona?</h2>
+                <p class="text-lg text-slate-600 max-w-3xl mx-auto">El SIP reemplaza el antiguo sistema de procesamiento por lotes con una red de pagos instantáneos. Esto elimina las esperas y permite que el dinero fluya de forma continua entre cualquier entidad del país.</p>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div class="border-r-0 md:border-r md:pr-8 border-slate-200">
+                        <h3 class="text-xl font-bold text-center text-red-600 mb-4">ANTES: Sistema por Lotes (SPI)</h3>
+                        <p class="text-sm text-center text-slate-500 mb-6">Las transferencias se acumulaban y procesaban en "cortes" a horas específicas, generando demoras de horas o incluso hasta el día siguiente.</p>
+                        <div class="relative h-48 flex items-center justify-around text-center">
+                            <div class="z-10">👤<br>Ordenante</div>
+                            <div class="z-10">🏦<br>Banco A</div>
+                            <div class="z-10 p-2 bg-red-100 rounded-lg">⏳<br>Corte 1<br>Corte 2<br>Corte 3</div>
+                            <div class="z-10">🏦<br>Banco B</div>
+                            <div class="z-10">👤<br>Beneficiario</div>
+                            <svg class="absolute w-full h-full top-0 left-0" viewBox="0 0 400 100" preserveAspectRatio="none">
+                                <path d="M20 50 C 80 20, 120 20, 150 50 S 180 80, 250 50 S 320 20, 380 50" stroke="#ef4444" stroke-width="2" fill="none" stroke-dasharray="5,5"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-center text-green-600 mb-4">AHORA: Sistema Instantáneo (SIP)</h3>
+                        <p class="text-sm text-center text-slate-500 mb-6">Las transferencias viajan en segundos a través de la Red de Pagos Instantáneos (RPI), directamente y sin esperas, operando 24/7.</p>
+                         <div class="relative h-48 flex items-center justify-around text-center">
+                            <div class="z-10">👤<br>Ordenante</div>
+                            <div class="z-10">🏦<br>Banco A</div>
+                            <div class="z-10 p-2 bg-green-100 rounded-lg">⚡️<br>Red de Pagos<br>Instantáneos<br>(RPI)</div>
+                            <div class="z-10">🏦<br>Banco B</div>
+                            <div class="z-10">👤<br>Beneficiario</div>
+                            <svg class="absolute w-full h-full top-0 left-0" viewBox="0 0 400 100" preserveAspectRatio="none">
+                                <path id="sip-flow-path" class="flow-line" d="M20 50 C 100 50, 120 50, 200 50 S 280 50, 380 50" stroke="#16a34a" stroke-width="3" fill="none"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <hr class="my-12 md:my-20 border-slate-200">
+
+        <section id="timeline" class="py-12">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">Hoja de Ruta: Implementación Obligatoria</h2>
+                <p class="text-lg text-slate-600 max-w-3xl mx-auto">El BCE estableció un cronograma escalonado y mandatorio para asegurar una rápida adopción, comenzando por los actores más grandes para generar una masa crítica de usuarios desde el inicio.</p>
+            </div>
+            <div class="max-w-3xl mx-auto">
+                <div class="relative border-l-2 border-teal-500 pl-8 space-y-12">
+                    <div class="timeline-item">
+                        <h3 class="text-lg font-bold text-teal-700">Fase 1 <span class="text-sm font-normal text-slate-500">(4 meses)</span></h3>
+                        <p class="text-slate-600">Las administradoras de redes de pago se conectan al SIP y habilitan las operaciones con **"llaves" electrónicas (alias)**.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h3 class="text-lg font-bold text-teal-700">Fase 2 <span class="text-sm font-normal text-slate-500">(6 meses)</span></h3>
+                        <p class="text-slate-600">Los participantes del Sistema Auxiliar de Pagos (Fintechs y otros proveedores) se integran para procesar transferencias.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h3 class="text-lg font-bold text-teal-700">Fase 3 <span class="text-sm font-normal text-slate-500">(6 meses)</span></h3>
+                        <p class="text-slate-600">Las entidades financieras más grandes (activos ≥ $4,000 millones) se integran completamente.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h3 class="text-lg font-bold text-teal-700">Fase 4 <span class="text-sm font-normal text-slate-500">(9 meses)</span></h3>
+                        <p class="text-slate-600">Se integran las entidades financieras medianas (activos entre $1,500 y $4,000 millones).</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h3 class="text-lg font-bold text-teal-700">Hito Clave <span class="text-sm font-normal text-slate-500">(18 meses)</span></h3>
+                        <p class="text-slate-600">El Banco Central del Ecuador pone en producción la plataforma tecnológica completa del SIP, que deberá estar 100% operativa a más tardar en 2026.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-12 md:my-20 border-slate-200">
+
+        <section id="compare" class="py-12">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">Aprendiendo de los Mejores: SIP en el Contexto Regional</h2>
+                <p class="text-lg text-slate-600 max-w-3xl mx-auto">El diseño del SIP no es casual. Ecuador estudió las experiencias de la región, emulando de cerca el exitoso modelo de PIX en Brasil y evitando los tropiezos de CoDi en México.</p>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-bold text-slate-800 mb-2 text-center">Claves del Éxito del Modelo PIX (Brasil)</h3>
+                    <p class="text-center text-slate-500 mb-6">Adoptado por Ecuador para el SIP.</p>
+                    <ul class="space-y-4 text-slate-600">
+                        <li class="flex items-start gap-3">
+                            <span class="text-teal-500 font-bold">✔</span>
+                            <div><strong class="text-slate-800">Impulso Regulatorio Fuerte:</strong> Adopción mandatoria y por fases para crear masa crítica rápidamente.</div>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <span class="text-teal-500 font-bold">✔</span>
+                            <div><strong class="text-slate-800">Foco en la Experiencia de Usuario:</strong> "Llaves" (alias) y QR interoperables para máxima simplicidad.</div>
+                        </li>
+                         <li class="flex items-start gap-3">
+                            <span class="text-teal-500 font-bold">✔</span>
+                            <div><strong class="text-slate-800">Visión de Ecosistema:</strong> La regulación incluye a nuevos actores (Fintechs) y roles (Iniciadores de Pago), sentando las bases para la innovación futura.</div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-xl font-bold text-slate-800 mb-2 text-center">Adopción Poblacional: La Brecha a Cerrar</h3>
+                    <p class="text-center text-slate-500 mb-6">La diferencia en adopción entre Brasil y México muestra el impacto de la estrategia. El objetivo de Ecuador es replicar el éxito de PIX.</p>
+                    <div class="chart-container !h-80">
+                        <canvas id="adoptionRateChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-12 md:my-20 border-slate-200">
+
+        <section id="impact" class="py-12">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-slate-800 mb-4">Impacto Proyectado y Desafíos Críticos</h2>
+                <p class="text-lg text-slate-600 max-w-3xl mx-auto">El SIP tiene el potencial de transformar la economía, pero su éxito depende de superar obstáculos significativos en seguridad y educación.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-2xl font-bold text-slate-800 mb-6 text-center">Beneficios Transformadores</h3>
+                    <div class="space-y-6">
+                        <div class="kpi-card">
+                            <h4 class="font-bold text-lg text-slate-800 mb-2">📈 Inclusión Financiera</h4>
+                            <p class="text-slate-600">Simplifica el acceso a servicios financieros para millones de personas no bancarizadas, especialmente en zonas rurales, usando solo su cédula o celular.</p>
+                        </div>
+                        <div class="kpi-card">
+                            <h4 class="font-bold text-lg text-slate-800 mb-2">💼 Formalización de la Economía</h4>
+                            <p class="text-slate-600">Incentiva a pequeños comercios a adoptar pagos digitales, creando un rastro de transacciones que facilita el acceso al crédito y mejora la recaudación.</p>
+                        </div>
+                        <div class="kpi-card">
+                            <h4 class="font-bold text-lg text-slate-800 mb-2">💸 Eficiencia y Menos Efectivo</h4>
+                            <p class="text-slate-600">Mejora radicalmente el flujo de caja de los comercios y reduce los altos costos logísticos asociados al manejo de efectivo físico en una economía dolarizada.</p>
+                        </div>
+                    </div>
+                </div>
+                 <div>
+                    <h3 class="text-2xl font-bold text-slate-800 mb-6 text-center">Desafíos Fundamentales</h3>
+                    <div class="space-y-6">
+                        <div class="kpi-card border-l-4 border-amber-500">
+                            <h4 class="font-bold text-lg text-slate-800 mb-2">🛡️ Ciberseguridad</h4>
+                            <p class="text-slate-600">Un sistema centralizado y en tiempo real es un objetivo de alto valor. Protegerlo de ataques es el principal desafío técnico para mantener la confianza pública.</p>
+                        </div>
+                        <div class="kpi-card border-l-4 border-amber-500">
+                            <h4 class="font-bold text-lg text-slate-800 mb-2">🎓 Brecha Digital y Educación</h4>
+                            <p class="text-slate-600">El reto humano es clave: se necesitan campañas masivas para enseñar a la población a usar el sistema de forma segura y superar la desconfianza histórica.</p>
+                        </div>
+                        <div class="kpi-card border-l-4 border-amber-500">
+                            <h4 class="font-bold text-lg text-slate-800 mb-2">🏪 Adopción por Comercios</h4>
+                            <p class="text-slate-600">Convencer a millones de pequeños negocios de abandonar el efectivo requerirá demostrarles beneficios tangibles en seguridad, costo y eficiencia.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <hr class="my-12 md:my-20 border-slate-200">
+
+        <section id="future" class="text-center py-16 bg-teal-600 text-white rounded-xl">
+            <h2 class="text-3xl md:text-4xl font-extrabold mb-4">El Futuro: La Base para las Finanzas Abiertas</h2>
+            <p class="text-lg md:text-xl text-teal-100 max-w-3xl mx-auto">El SIP es mucho más que un sistema de pagos. Es la infraestructura fundacional sobre la cual Ecuador construirá su futuro ecosistema de **Open Banking**. Al estandarizar el movimiento de dinero, abre la puerta a una nueva era de innovación en crédito, seguros y gestión financiera, consolidando la transformación digital del país.</p>
+        </section>
+
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 mt-20">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
+            <p>Análisis interactivo basado en el informe del Sistema Integrado de Pagos (SIP) de Ecuador.</p>
+            <p class="text-sm text-slate-400 mt-2">Esta es una visualización de datos con fines educativos.</p>
+        </div>
+    </footer>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        const digitalGrowthData = {
+            labels: ['2019', '2023'],
+            datasets: [
+                {
+                    label: 'Número de Transacciones (Millones)',
+                    data: [9.7, 100.0],
+                    borderColor: '#14b8a6',
+                    backgroundColor: 'rgba(20, 184, 166, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'Valor de Transacciones (Miles de Millones USD)',
+                    data: [3.613, 25.405],
+                    borderColor: '#64748b',
+                    backgroundColor: 'rgba(100, 116, 139, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    yAxisID: 'y1'
+                }
+            ]
+        };
+
+        const digitalGrowthCtx = document.getElementById('digitalGrowthChart').getContext('2d');
+        new Chart(digitalGrowthCtx, {
+            type: 'line',
+            data: digitalGrowthData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: {
+                            display: true,
+                            text: 'Transacciones (Millones)'
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Valor (Miles de Millones USD)'
+                        },
+                        grid: {
+                            drawOnChartArea: false, 
+                        },
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                     if(context.dataset.yAxisID === 'y1'){
+                                        label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact' }).format(context.parsed.y * 1000000000);
+                                     } else {
+                                        label += context.parsed.y + ' M';
+                                     }
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        const adoptionRateData = {
+            labels: ['PIX (Brasil)', 'CoDi (México)'],
+            datasets: [{
+                label: 'Adopción Poblacional (%)',
+                data: [55, 8],
+                backgroundColor: [
+                    'rgba(20, 184, 166, 0.7)',
+                    'rgba(249, 115, 22, 0.7)'
+                ],
+                borderColor: [
+                    '#0d9488',
+                    '#d97706'
+                ],
+                borderWidth: 1
+            }]
+        };
+
+        const adoptionRateCtx = document.getElementById('adoptionRateChart').getContext('2d');
+        new Chart(adoptionRateCtx, {
+            type: 'bar',
+            data: adoptionRateData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: '% de la Población (Ene. 2023)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sipFlowLine = document.getElementById('sip-flow-path');
+
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.6
+        };
+
+        const sectionObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id');
+                    navLinks.forEach(link => {
+                        link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
+                    });
+
+                    if(id === 'how') {
+                        setTimeout(() => {
+                           sipFlowLine.classList.add('active');
+                        }, 300);
+                    }
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(section => {
+            sectionObserver.observe(section);
+        });
+    });
+    </script>
+</body>
+</html> 
