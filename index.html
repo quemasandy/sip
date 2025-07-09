@@ -78,6 +78,32 @@
         .flow-line.active {
             stroke-dashoffset: 0;
         }
+        /* Audio Player Styles */
+        .slider {
+            background: linear-gradient(to right, #14b8a6 0%, #14b8a6 100%, #cbd5e1 100%, #cbd5e1 100%);
+        }
+        .slider::-webkit-slider-thumb {
+            appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #0d9488;
+            cursor: pointer;
+            border: 2px solid #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .slider::-moz-range-thumb {
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #0d9488;
+            cursor: pointer;
+            border: 2px solid #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        #audioPlayer {
+            display: none; /* Hide default audio player */
+        }
     </style>
 </head>
 <body class="text-slate-700">
@@ -90,6 +116,7 @@
                 </div>
                 <div class="hidden md:block">
                     <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#audio" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600">Audio</a>
                         <a href="#intro" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600">Introducción</a>
                         <a href="#why" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600">¿Por qué ahora?</a>
                         <a href="#how" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-600">¿Cómo funciona?</a>
@@ -103,6 +130,65 @@
     </header>
 
     <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+
+        <!-- Audio Player Section -->
+        <section id="audio" class="mb-12">
+            <div class="bg-white rounded-xl shadow-lg p-6 max-w-4xl mx-auto">
+                <div class="text-center mb-6">
+                    <h2 class="text-2xl font-bold text-slate-800 mb-2">🎧 Análisis en Audio</h2>
+                    <p class="text-slate-600">Escucha el análisis completo sobre el Sistema Integrado de Pagos de Ecuador</p>
+                </div>
+                
+                <!-- Custom Audio Player -->
+                <div class="bg-gradient-to-r from-teal-50 to-slate-50 rounded-lg p-6">
+                    <audio id="audioPlayer" class="w-full" preload="metadata">
+                        <source src="audio/SIP Ecuador_ Pagos Instantáneos y Futuro Financiero.wav" type="audio/wav">
+                        <p class="text-red-600">Tu navegador no soporta el elemento de audio.</p>
+                    </audio>
+                    
+                    <!-- Custom Controls -->
+                    <div class="flex items-center justify-between mt-4 px-2">
+                        <div class="flex items-center space-x-3">
+                            <button id="playPauseBtn" class="bg-teal-600 hover:bg-teal-700 text-white rounded-full p-3 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2">
+                                <svg id="playIcon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>
+                                </svg>
+                                <svg id="pauseIcon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                </svg>
+                            </button>
+                            
+                            <div class="flex items-center space-x-2">
+                                <span id="currentTime" class="text-sm text-slate-600 font-mono">0:00</span>
+                                <span class="text-slate-400">/</span>
+                                <span id="duration" class="text-sm text-slate-600 font-mono">0:00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-4 h-4 text-slate-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.617.773L4.246 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.246l4.137-3.773z" clip-rule="evenodd"></path>
+                            </svg>
+                            <input id="volumeSlider" type="range" min="0" max="1" step="0.1" value="1" class="w-20 h-1 bg-slate-300 rounded-lg appearance-none cursor-pointer slider">
+                        </div>
+                    </div>
+                    
+                    <!-- Progress Bar -->
+                    <div class="mt-4">
+                        <div class="relative">
+                            <div class="bg-slate-200 rounded-full h-2 cursor-pointer" id="progressContainer">
+                                <div id="progressBar" class="bg-teal-500 h-2 rounded-full transition-all duration-150" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- File Info -->
+                    <div class="mt-4 text-center">
+                        <p class="text-xs text-slate-500">📁 SIP Ecuador: Pagos Instantáneos y Futuro Financiero.wav</p>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <section id="intro" class="text-center py-16">
             <h2 class="text-4xl md:text-5xl font-extrabold text-slate-800 mb-4">La Revolución de los Pagos en Ecuador.</h2>
@@ -490,6 +576,83 @@
 
         sections.forEach(section => {
             sectionObserver.observe(section);
+        });
+
+        // Audio Player Functionality
+        const audioPlayer = document.getElementById('audioPlayer');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const playIcon = document.getElementById('playIcon');
+        const pauseIcon = document.getElementById('pauseIcon');
+        const progressBar = document.getElementById('progressBar');
+        const progressContainer = document.getElementById('progressContainer');
+        const currentTimeSpan = document.getElementById('currentTime');
+        const durationSpan = document.getElementById('duration');
+        const volumeSlider = document.getElementById('volumeSlider');
+
+        // Format time helper function
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        // Play/Pause functionality
+        playPauseBtn.addEventListener('click', function() {
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+            } else {
+                audioPlayer.pause();
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+            }
+        });
+
+        // Update progress bar and time display
+        audioPlayer.addEventListener('timeupdate', function() {
+            const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+            progressBar.style.width = progress + '%';
+            currentTimeSpan.textContent = formatTime(audioPlayer.currentTime);
+        });
+
+        // Set duration when metadata loads
+        audioPlayer.addEventListener('loadedmetadata', function() {
+            durationSpan.textContent = formatTime(audioPlayer.duration);
+        });
+
+        // Seek functionality
+        progressContainer.addEventListener('click', function(e) {
+            const clickX = e.offsetX;
+            const width = progressContainer.offsetWidth;
+            const duration = audioPlayer.duration;
+            audioPlayer.currentTime = (clickX / width) * duration;
+        });
+
+        // Volume control
+        volumeSlider.addEventListener('input', function() {
+            audioPlayer.volume = volumeSlider.value;
+            // Update slider background
+            const percentage = volumeSlider.value * 100;
+            volumeSlider.style.background = `linear-gradient(to right, #14b8a6 0%, #14b8a6 ${percentage}%, #cbd5e1 ${percentage}%, #cbd5e1 100%)`;
+        });
+
+        // Reset play button when audio ends
+        audioPlayer.addEventListener('ended', function() {
+            playIcon.classList.remove('hidden');
+            pauseIcon.classList.add('hidden');
+            progressBar.style.width = '0%';
+            currentTimeSpan.textContent = '0:00';
+        });
+
+        // Handle audio loading errors
+        audioPlayer.addEventListener('error', function(e) {
+            console.error('Error loading audio:', e);
+            playPauseBtn.style.display = 'none';
+            const errorMsg = document.createElement('p');
+            errorMsg.textContent = 'Error al cargar el archivo de audio. Verifica que el archivo existe en la carpeta audio/.';
+            errorMsg.className = 'text-red-600 text-sm text-center mt-2';
+            progressContainer.parentNode.replaceChild(errorMsg, progressContainer.parentNode);
         });
     });
     </script>
